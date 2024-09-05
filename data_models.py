@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 
+db = SQLAlchemy()
 
 
 class User(db.Model):
@@ -22,8 +23,9 @@ class Movie(db.Model):
     movie_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(200), nullable=False)
     director = db.Column(db.String(150), nullable=False)
-    release_year = db.Column(db.Integer)
-    movie_rating = db.Column(db.Float)
+    release_year = db.Column(db.Integer, nullable=True)
+    movie_rating = db.Column(db.Float, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
 
     # Establishing a relationship back to the User table
     user = relationship('User', back_populates='movies')
