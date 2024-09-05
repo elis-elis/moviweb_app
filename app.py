@@ -11,5 +11,5 @@ app.config.from_object(Config)
 db.init_app(app)
 CORS(app)
 
-with app.app_context():
-    db.create_all()
+# with app.app_context():
+#    db.create_all()
