@@ -2,7 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 
 
-db = SQLAlchemy
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -25,14 +24,9 @@ class Movie(db.Model):
     director = db.Column(db.String(150), nullable=False)
     release_year = db.Column(db.Integer)
     movie_rating = db.Column(db.Float)
-    user_id = db.Column(db.Integer(100), db.ForeignKey('user.user_id'), nullable=False)
 
-     # Establishing a relationship back to the User table
+    # Establishing a relationship back to the User table
     user = relationship('User', back_populates='movies')
 
     def __repr__(self):
         return f"'{self.title}' directed by {self.director}, released on {self.release_year}, rated {self.movie_rating}"
-    
-
-
-    
