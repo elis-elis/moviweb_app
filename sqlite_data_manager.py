@@ -6,7 +6,6 @@ required to perform operations on the database, such as retrieving, adding, dele
 and updating movies for users.
 """
 
-from flask_sqlalchemy import SQLAlchemy
 from data_manager_interface import DataManagerInterface
 from data_models import db, User, Movie, user_movies
 
@@ -38,7 +37,7 @@ class SQLiteDataManager(DataManagerInterface):
         Returns a list of Movie objects for the specified user.
         """
         with self.app.app_context():
-            user = self.db.session.query(User).filter_by(user_id=user_id).all()
+            user = self.db.session.query(User).filter_by(user_id=user_id).first()
 
             # Check if the user was found
             if user is not None:
@@ -73,5 +72,60 @@ class SQLiteDataManager(DataManagerInterface):
             self.db.session.add(new_movie)
             self.db.session.commit()
 
-    def
+    def add_movie_to_user(self, user_id, movie_id):
+        """
+        This method associates a movie with a specific user.
+        """
+        with self.app.app_context():
+            # user_id is unique, so querying for a single record
+            # .first() returns that single record (if it exists) or None
+            user = self.db.session.query(User).filter_by(user_id=user_id).first()
+            movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
+            if user and movie:
+                if movie not in user.movies:
+                    self.db.session.add(movie)
+                    self.db.session.commit()
+
+    def remove_movie_from_user(self, user_id, movie_id):
+        """
+        This method dissociates a movie from a specific user.
+        """
+        with self.app.app_context():
+            user = self.db.session.query(User).filter_by(user_id=user_id).first()
+            movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
+            if user and movie:
+                if movie in user.movies:
+                    self.db.session.remove(movie)
+                    self.db.session.commit()
+
+    def delete_movie(self, movie_id):
+        """This method deletes a movie from the database."""
+        with self.app.app_context():
+            movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
+            if movie:
+                self.db.session.delete(movie)
+                self.db.session.commit()
+
+    def delete_user(self, user_id):
+        """This method deletes a user from the database."""
+        with self.app.app_context():
+            user = self.db.session.query(User).filter_by(user_id=user_id).first()
+            if user:
+                self.db.session.delete(user)
+                self.db.session.commit()
+
+    def update_movie(self, user_id, movie_id, updated_data):
+        """
+        updates the movie record in the database. This affects all users who have this movie
+        associated with them because the movie’s details are stored centrally in the Movie table.
+        """
+        movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
+        if movie:
+            # If 'title' is present in updated_data, its value is used.
+            # If 'title' is not in updated_data, the current movie.title remains unchanged.
+            movie.title = updated_data.get('title', movie.title),
+            movie.director = updated_data.get('director', movie.director),
+            movie.release_year = updated_data.get('release_year', movie.release_year),
+            movie.movie_rating = updated_data.get('rating', movie.movie_rating)
+            self.db.session.commit()
 

@@ -31,13 +31,18 @@ class DataManagerInterface(ABC):
         pass
 
     @abstractmethod
-    def delete_movie(self, user_id, movie_id):
+    def delete_movie(self, movie_id):
         """Delete a movie from the database."""
         pass
 
     @abstractmethod
     def remove_movie_from_user(self, user_id, movie_id):
         """Dissociate a movie from a specific user."""
+        pass
+
+    @abstractmethod
+    def delete_user(self, user_id):
+        """Delete a user from the database."""
         pass
 
     @abstractmethod
