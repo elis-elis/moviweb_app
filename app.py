@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify, flash
 from flask_cors import CORS
 from config import Config
 from data_models import db, User, Movie, user_movies
@@ -23,10 +23,29 @@ def home():
     return "Welcome, but I am not impressed..."
 
 
-@app.route('/users')
+@app.route('/users', methods=['GET'])
 def list_users():
     users = data_manager.get_all_users()
-    return str(users)
+    user_list = []
+    for user in users:
+        user_dict = {'id': user.user_id, 'name': user.user_name}
+        user_list.append(user_dict)
+
+    flash('🚀Here are all the users: ')
+    return jsonify(user_list)
+
+
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    user_name = request.form.get('user_name')
+
+    if user_name:
+        data_manager.add_user(user_name)
+        flash('User added successfully! 🦕', 'success')
+        return jsonify({'message': f"User '{user_name}' added successfully!"}), 201
+    else:
+        flash('User name is required! 🦖', 'error')
+        return jsonify({'error': 'User name is required.'}), 400
 
 
 if __name__ == '__main__':
