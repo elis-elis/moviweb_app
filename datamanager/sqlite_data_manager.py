@@ -19,6 +19,7 @@ class SQLiteDataManager(DataManagerInterface):
         The Flask application context (app) holds the configuration settings necessary for
         SQLAlchemy to connect to the database, manage sessions, and handle requests.
         """
+        self.app = app
         self.db = db
         self.db.init_app(app)   # binds the database to the Flask application
 
@@ -26,7 +27,7 @@ class SQLiteDataManager(DataManagerInterface):
         """
         Retrieve all user records from the database.
         """
-        with self.db.app.app_context():
+        with self.app.app_context():
             # 'with' ensures the Flask application context is active for database operations
             return self.db.session.query(User).all()
 
@@ -35,7 +36,7 @@ class SQLiteDataManager(DataManagerInterface):
         Filters the 'Movie' table and returns only movies associated with the provided user_id.
         Returns a list of Movie objects for the specified user.
         """
-        with self.db.app.app_context():
+        with self.app.app_context():
             user = self.db.session.query(User).filter_by(user_id=user_id).first()
 
             # Check if the user was found
@@ -50,7 +51,7 @@ class SQLiteDataManager(DataManagerInterface):
         """
         This method adds a new user to the database.
         """
-        with self.db.app.app_context():
+        with self.app.app_context():
             new_user = User(user_name=user_name)
             self.db.session.add(new_user)
             self.db.session.commit()
@@ -61,7 +62,7 @@ class SQLiteDataManager(DataManagerInterface):
         movie_data is a dictionary containing information about the movie that user wants to add.
         This block creates a new instance of the Movie class using the data provided.
         """
-        with self.db.app.app_context():
+        with self.app.app_context():
             new_movie = Movie(
                 title=movie_data.get('title'),
                 director=movie_data.get('director'),
@@ -75,7 +76,7 @@ class SQLiteDataManager(DataManagerInterface):
         """
         This method associates a movie with a specific user.
         """
-        with self.db.app.app_context():
+        with self.app.app_context():
             # user_id is unique, so querying for a single record
             # .first() returns that single record (if it exists) or None
             user = self.db.session.query(User).filter_by(user_id=user_id).first()
@@ -89,7 +90,7 @@ class SQLiteDataManager(DataManagerInterface):
         """
         This method dissociates a movie from a specific user.
         """
-        with self.db.app.app_context():
+        with self.app.app_context():
             user = self.db.session.query(User).filter_by(user_id=user_id).first()
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
             if user and movie:
@@ -99,7 +100,7 @@ class SQLiteDataManager(DataManagerInterface):
 
     def delete_movie(self, movie_id):
         """This method deletes a movie from the database."""
-        with self.db.app.app_context():
+        with self.app.app_context():
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
             if movie:
                 self.db.session.delete(movie)
@@ -107,7 +108,7 @@ class SQLiteDataManager(DataManagerInterface):
 
     def delete_user(self, user_id):
         """This method deletes a user from the database."""
-        with self.db.app.app_context():
+        with self.app.app_context():
             user = self.db.session.query(User).filter_by(user_id=user_id).first()
             if user:
                 self.db.session.delete(user)
@@ -118,7 +119,7 @@ class SQLiteDataManager(DataManagerInterface):
         Updates the movie record in the database. This affects all users who have this movie
         associated with them because the movie’s details are stored centrally in the Movie table.
         """
-        with self.db.app.app_context():
+        with self.app.app_context():
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
             if movie:
                 # If 'title' is present in updated_data, its value is used.
