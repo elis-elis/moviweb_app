@@ -17,7 +17,7 @@ class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_name = db.Column(db.String(100), nullable=False)
 
-    # Establishing a relationship with the Movie table
+    # Many-to-many relationship with movies
     movies = relationship('Movie', secondary=user_movies, back_populates='users')
 
     def __repr__(self):
@@ -32,10 +32,9 @@ class Movie(db.Model):
     director = db.Column(db.String(150), nullable=False)
     release_year = db.Column(db.Integer, nullable=True)
     movie_rating = db.Column(db.Float, nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
 
-    # Establishing a relationship back to the User table
-    user = relationship('User', secondary=user_movies, back_populates='movies')
+    # Many-to-many relationship with users
+    users = relationship('User', secondary=user_movies, back_populates='movies')
 
     def __repr__(self):
         return f"'{self.title}' directed by {self.director}, released on {self.release_year}, rated {self.movie_rating}"

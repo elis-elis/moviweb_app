@@ -82,7 +82,7 @@ class SQLiteDataManager(DataManagerInterface):
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
             if user and movie:
                 if movie not in user.movies:
-                    self.db.session.add(movie)
+                    self.db.session.append(movie)   # This appends the movie to the user's movie list
                     self.db.session.commit()
 
     def remove_movie_from_user(self, user_id, movie_id):
@@ -94,7 +94,7 @@ class SQLiteDataManager(DataManagerInterface):
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
             if user and movie:
                 if movie in user.movies:
-                    self.db.session.remove(movie)
+                    self.db.session.remove(movie)   # This removes the movie from the user's movie list
                     self.db.session.commit()
 
     def delete_movie(self, movie_id):
