@@ -14,13 +14,12 @@ CORS(app)
 data_manager = SQLiteDataManager(app)
 
 
-with app.app_context():
-    db.create_all()
+# with app.app_context():
+#    db.create_all()
 
 
 @app.route('/')
 def home():
-    flash('Welcome, but I am not impressed...🛸')
     # return render_template('home.html')
     return 'Welcome, but I am not impressed...🛸'
 
@@ -28,13 +27,7 @@ def home():
 @app.route('/users', methods=['GET'])
 def list_users():
     users = data_manager.get_all_users()
-    user_list = []
-    for user in users:
-        user_dict = {'id': user.user_id, 'name': user.user_name}
-        user_list.append(user_dict)
-
-    flash('🚀Here are all the users: ')
-    return jsonify(user_list)
+    return render_template('users.html', users=users)
 
 
 @app.route('/add_user', methods=['POST'])
