@@ -71,6 +71,7 @@ class SQLiteDataManager(DataManagerInterface):
             )
             self.db.session.add(new_movie)
             self.db.session.commit()
+            return new_movie.movie_id
 
     def add_movie_to_user(self, user_id, movie_id):
         """
@@ -114,7 +115,7 @@ class SQLiteDataManager(DataManagerInterface):
                 self.db.session.delete(user)
                 self.db.session.commit()
 
-    def update_movie(self, user_id, movie_id, updated_data):
+    def update_movie(self, movie_id, updated_data):
         """
         Updates the movie record in the database. This affects all users who have this movie
         associated with them because the movie’s details are stored centrally in the Movie table.
@@ -124,8 +125,8 @@ class SQLiteDataManager(DataManagerInterface):
             if movie:
                 # If 'title' is present in updated_data, its value is used.
                 # If 'title' is not in updated_data, the current movie.title remains unchanged.
-                movie.title = updated_data.get('title', movie.title),
-                movie.director = updated_data.get('director', movie.director),
-                movie.release_year = updated_data.get('release_year', movie.release_year),
+                movie.title = updated_data.get('title', movie.title)
+                movie.director = updated_data.get('director', movie.director)
+                movie.release_year = updated_data.get('release_year', movie.release_year)
                 movie.movie_rating = updated_data.get('rating', movie.movie_rating)
                 self.db.session.commit()

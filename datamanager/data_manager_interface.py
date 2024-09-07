@@ -12,40 +12,57 @@ class DataManagerInterface(ABC):
 
     @abstractmethod
     def get_all_users(self):
-        """Retrieve a list of all users."""
+        """
+        Retrieve a list of all users.
+        """
         pass
 
     @abstractmethod
     def get_user_movies(self, user_id):
-        """Retrieve a list of movies for a specific user."""
+        """
+        Retrieve a list of movies for a specific user.
+        """
         pass
 
     @abstractmethod
     def add_movie(self, movie_data):
-        """Add a new movie to the database."""
+        """
+        Add a new movie to the database.
+        """
         pass
 
     @abstractmethod
     def add_movie_to_user(self, user_id, movie_id):
-        """Associate a movie with a specific user."""
+        """
+        Associate an existing movie with a specific user.
+        If the movie does not exist, it should be added first before associating it with the user.
+        """
         pass
 
     @abstractmethod
     def delete_movie(self, movie_id):
-        """Delete a movie from the database."""
+        """
+        Delete a movie from the database.
+        """
         pass
 
     @abstractmethod
     def remove_movie_from_user(self, user_id, movie_id):
-        """Dissociate a movie from a specific user."""
+        """
+        Dissociate a movie from a specific user.
+        """
         pass
 
     @abstractmethod
     def delete_user(self, user_id):
-        """Delete a user from the database."""
+        """
+        Delete a user from the database.
+        """
         pass
 
     @abstractmethod
-    def update_movie(self, user_id, movie_id, updated_data):
-        """Update a movie in the database."""
+    def update_movie(self, movie_id, updated_data):
+        """
+        Update a movie in the database.
+        """
         pass

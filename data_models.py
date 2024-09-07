@@ -28,10 +28,10 @@ class Movie(db.Model):
     __tablename__ = 'movies'
 
     movie_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.String(200), nullable=False)
-    director = db.Column(db.String(150), nullable=False)
-    release_year = db.Column(db.Integer, nullable=True)
-    movie_rating = db.Column(db.Float, nullable=True)
+    title = db.Column(db.String(250), nullable=False)
+    director = db.Column(db.String(200), nullable=False)
+    release_year = db.Column(db.Integer, nullable=False)
+    movie_rating = db.Column(db.Float, nullable=False)
 
     # Many-to-many relationship with users
     users = relationship('User', secondary=user_movies, back_populates='movies')
