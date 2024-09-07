@@ -6,8 +6,9 @@ db = SQLAlchemy()
 # Association table for the many-to-many relationship
 user_movies = db.Table(
     'user_movies',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.user_id'), primary_key=True),
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.movie_id'), primary_key=True)
+    db.Column('id', db.Integer, primary_key=True, autoincrement=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.user_id'), nullable=False),
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.movie_id'), nullable=False)
 )
 
 
