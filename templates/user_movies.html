@@ -76,11 +76,15 @@
             {% for movie in movies %}
                 <li>
                     <!-- Display movie details -->
-                    {{ movie.title }} by {{ movie.director }} released on {{ movie_release_year }} and today rated: {{ movie.movie_rating }}
+                    {{ movie.title }} ({{ movie.release_year }}) directed by {{ movie.director }} - rating: {{ movie.movie_rating }}
 
-                    <!-- Options to Edit and Delete Movie(s) -->
+                    <!-- Edit Movie -->
                     <a href="{{ url_for('update_movie', user_id=user.user_id, movie_id=movie.movie_id) }}">edit</a>
-                    <a href="{{ url_for('delete_movie', user_id=user.user_id, movie_id=movie.movie_id) }}">delete</a>
+
+                    <!-- Form to Delete Movie -->
+                    <form action="{{ url_for('delete_movie', movie_id=movie.movie_id) }}" method="POST" style="display: inline;">
+                        <button type="submit">delete</button>
+                    </form>
                 </li>
             {% endfor %}
             </ul>
@@ -89,11 +93,12 @@
         {% endif %}
 
         <div>
-            <!-- a link to add a new movie to the user's list -->
+            <!-- Links to other pages -->
             <a href="{{ url_for('add_new_movie_to_user', user_id=user.user_id) }}">add new movie to your fav list</a><br><br>
+            <a href="{{ url_for('add_movie') }}">add new movie to the MovieWeb App</a><br><br>
+            <a href="{{ url_for('list_movies') }}">all movies in dataBase</a><br><br>
+            <a href="{{ url_for('list_users') }}">to users list</a>
 
-            <!-- a link to add a new movie to the database -->
-            <a href="{{ url_for('add_movie') }}">add new movie to the MovieWeb App</a>
         </div>
 
 </body>

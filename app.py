@@ -29,6 +29,12 @@ def list_users():
     return render_template('users.html', users=users)
 
 
+@app.route('/movies', methods=['GET'])
+def list_movies():
+    movies = data_manager.get_all_movies()
+    return render_template('movies.html', movies=movies)
+
+
 @app.route('/add_user', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
@@ -91,6 +97,9 @@ def user_movies(user_id):
 
 @app.route('/users/<int:user_id>/add_movie', methods=['GET', 'POST'])
 def add_new_movie_to_user(user_id):
+    # Fetch the user data
+    user = data_manager.get_user_by_id(user_id)
+
     if request.method == 'POST':
         # Extract movie data from the form
         movie_data = {
@@ -116,7 +125,7 @@ def add_new_movie_to_user(user_id):
             flash('All fields are required! 🌋', 'error')
 
     # Render the form if method is GET or if there was an error
-    return render_template('add_new_movie_to_user.html', movie_data={}, user_id=user_id)
+    return render_template('add_new_movie_to_user.html', movie_data={}, user=user, user_id=user_id)
 
 
 @app.route('/users/<user_id>/add_movie/<movie_id>', methods=['GET', 'POST'])
@@ -127,7 +136,7 @@ def add_existing_movie_to_user(user_id, movie_id):
     if request.method == 'POST':
         data_manager.add_movie_to_user(user_id, movie_id)
         flash(f"Movie with ID {movie_id} added to user {user.user_name} successfully!", 'success')
-        return redirect(url_for('user_movies', user_id=user_id))
+        return redirect(url_for('add_existing_movie_to_user', user_id=user_id, movie_id=movie_id))
 
     # Render a form to allow the user to select a movie
     return render_template('add_existing_movie_to_user.html', user=user, movies=movies)
@@ -158,12 +167,18 @@ def update_movie(user_id, movie_id):
 
 @app.route('/users/delete_movie/<int:movie_id>', methods=['POST'])
 def delete_movie(movie_id):
-    pass
+    data_manager.delete_movie(movie_id)
+
+    flash(f"Movie with ID {movie_id} has been deleted successfully!", 'success')
+    return redirect(url_for('delete_movie', movie_id=movie_id))
 
 
 @app.route('/users/<int:user_id>/delete_movie/<int:movie_id>', methods=['POST'])
 def remove_movie_from_user(user_id, movie_id):
-    pass
+    data_manager.remove_movie_from_user(user_id, movie_id)
+
+    flash(f"Movie with ID {movie_id} has been deleted from user with ID {user_id} successfully!", 'success')
+    return redirect(url_for('remove_movie_from_user', user_id=user_id, movie_id=movie_id))
 
 
 if __name__ == '__main__':

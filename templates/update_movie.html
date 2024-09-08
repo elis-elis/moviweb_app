@@ -122,7 +122,7 @@ body {
         <input type="submit" value="update movie">
 
         <!-- Go to User's Movie List -->
-         <a href="{{ url_for('user_movies', user_id=user_id) }}">back to user's movies</a>
+         <a href="{{ url_for('user_movies', user_id=user.user_id) }}">back to user's movies</a>
 
     </form>
 </body>

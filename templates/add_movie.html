@@ -143,8 +143,13 @@
         <input type="submit" value="add it">
     </form>
 
-    <!-- Go to Users Page -->
-    <a href="{{ url_for('list_users') }}">back to users</a>
+    <div>
+        <!-- Go to Users Page -->
+        <a href="{{ url_for('list_users') }}">back to users</a><br><br>
+
+        <!-- a link to all movies -->
+        <a href="{{ url_for('list_movies') }}">all movies in dataBase</a><br><br>
+    </div>
 
 </body>
 </html>

@@ -123,7 +123,13 @@
     </form>
 
     <!-- Go to User's Movie List -->
-    <a href="{{ url_for('user_movies', user_id=user_id) }}">back to user's movies</a>
+    <a href="{{ url_for('user_movies', user_id=user.user_id) }}">back to user's movies</a><br><br>
+
+    <!-- a link to add a new movie to the database -->
+    <a href="{{ url_for('add_movie') }}">add new movie to the MovieWeb App</a><br><br>
+
+    <!-- a link to see all movies -->
+    <a href="{{ url_for('list_movies') }}">all movies in dataBase</a>
 
 </body>
 </html>
