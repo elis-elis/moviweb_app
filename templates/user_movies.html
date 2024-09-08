@@ -85,10 +85,16 @@
             {% endfor %}
             </ul>
             {% else %}
-                <p>no favourite movies found for this user.</p>
+                <p>no favourite movies found for this user</p>
         {% endif %}
 
-        <!-- a link to add a new movie to the user's list -->
-        <a href="{{ url_for('add_movie_to_user', user_id=user.user_id) }}">add new movie here</a>
+        <div>
+            <!-- a link to add a new movie to the user's list -->
+            <a href="{{ url_for('add_movie_to_user', user_id=user.user_id) }}">add new movie to your fav list</a><br><br>
+
+            <!-- a link to add a new movie to the database -->
+            <a href="{{ url_for('add_movie') }}">add new movie to the MovieWeb App</a>
+        </div>
+
 </body>
 </html>

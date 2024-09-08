@@ -35,33 +35,43 @@ def add_user():
         # Handle POST request (form submission)
         user_name = request.form.get('user_name')
 
-        if user_name:
+        # Validate and remove any leading or trailing whitespace characters
+        if user_name and user_name.strip():
             data_manager.add_user(user_name)
             flash('User added successfully! 🦕', 'success')
             return redirect(url_for('add_user'))
-            # return jsonify({'message': f"User '{user_name}' added successfully!"}), 201
         else:
-            flash('User name is required! 🦖', 'error')
+            flash('User name is required and cannot be empty! 🦖', 'error')
+            # Return the form with an error message
+            return render_template('add_user.html')
     else:
         # Handle GET request (display form)
         return render_template('add_user.html')
 
 
-@app.route('/add_movie', methods=['POST'])
+@app.route('/add_movie', methods=['GET', 'POST'])
 def add_movie():
-    movie_data = {
-        'title': request.form.get('title'),
-        'director': request.form.get('director'),
-        'release_year': request.form.get('release_year'),
-        'rating': request.form.get('movie_rating')
-    }
-    if movie_data['title'] and movie_data['director'] and movie_data['release_year'] and movie_data['rating']:
-        data_manager.add_movie(movie_data)
-        flash('Movie added successfully! 🎡', 'success')
-        return jsonify({'message': f"Movie '{movie_data['title']}' added successfully!"}), 201
+    if request.method == 'POST':
+        # Extract movie data from the form
+        movie_data = {
+            'title': request.form.get('title'),
+            'director': request.form.get('director'),
+            'release_year': request.form.get('release_year'),
+            'rating': request.form.get('movie_rating')
+        }
+
+        # Check if all fields are filled
+        if movie_data['title'] and movie_data['director'] and movie_data['release_year'] and movie_data['rating']:
+            # Add the movie to the database
+            data_manager.add_movie(movie_data)
+            flash('Movie added successfully! 🎡', 'success')
+            # Redirect to the same page to clear the form
+            return redirect(url_for('add_movie'))
+        else:
+            flash('All fields are required! 🌋', 'error')
+
     else:
-        flash('All fields are required! 🌋', 'error')
-        return jsonify({'error': 'All fields are required.'}), 400
+        return render_template('add_movie.html', movie_data={})
 
 
 @app.route('/users/<int:user_id>', methods=['GET'])
