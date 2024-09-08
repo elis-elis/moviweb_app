@@ -119,6 +119,20 @@ def add_new_movie_to_user(user_id):
     return render_template('add_new_movie_to_user.html', movie_data={}, user_id=user_id)
 
 
+@app.route('/users/<user_id>/add_movie/<movie_id>', methods=['GET', 'POST'])
+def add_existing_movie_to_user(user_id, movie_id):
+    user = data_manager.get_user_by_id(user_id)
+    movies = data_manager.get_all_movies()
+
+    if request.method == 'POST':
+        data_manager.add_movie_to_user(user_id, movie_id)
+        flash(f"Movie with ID {movie_id} added to user {user.user_name} successfully!", 'success')
+        return redirect(url_for('user_movies', user_id=user_id))
+
+    # Render a form to allow the user to select a movie
+    return render_template('add_existing_movie_to_user.html', user=user, movies=movies)
+
+
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/edit', methods=['GET', 'POST'])
 def update_movie(user_id, movie_id):
     movie = data_manager.get_movie_by_id(movie_id)
@@ -140,6 +154,16 @@ def update_movie(user_id, movie_id):
         return redirect(url_for('user_movies', user_id=user_id))
 
     return render_template('update_movie.html', movie=movie, user=user)
+
+
+@app.route('/users/delete_movie/<int:movie_id>', methods=['POST'])
+def delete_movie(movie_id):
+    pass
+
+
+@app.route('/users/<int:user_id>/delete_movie/<int:movie_id>', methods=['POST'])
+def remove_movie_from_user(user_id, movie_id):
+    pass
 
 
 if __name__ == '__main__':

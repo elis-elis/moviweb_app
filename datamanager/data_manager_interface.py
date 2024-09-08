@@ -18,6 +18,13 @@ class DataManagerInterface(ABC):
         pass
 
     @abstractmethod
+    def get_all_movies(self):
+        """
+        Retrieve all movies from the database.
+        """
+        pass
+
+    @abstractmethod
     def get_user_by_id(self, user_id):
         """
         Retrieve a specific user by their ID.

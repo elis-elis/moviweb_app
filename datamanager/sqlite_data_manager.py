@@ -31,6 +31,13 @@ class SQLiteDataManager(DataManagerInterface):
             # 'with' ensures the Flask application context is active for database operations
             return self.db.session.query(User).all()
 
+    def get_all_movies(self):
+        """
+        Retrieve all movies from the database.
+        """
+        with self.app.app_context():
+            return self.db.session.query(Movie).all()
+
     def get_user_by_id(self, user_id):
         """
         Retrieve a specific user by their ID.
