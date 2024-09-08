@@ -11,9 +11,16 @@ from abc import ABC, abstractmethod
 class DataManagerInterface(ABC):
 
     @abstractmethod
-    def get_all_users(self):
+    def list_all_users(self):
         """
         Retrieve a list of all users.
+        """
+        pass
+
+    @abstractmethod
+    def get_user_by_id(self, user_id):
+        """
+        Retrieve a specific user by their ID.
         """
         pass
 

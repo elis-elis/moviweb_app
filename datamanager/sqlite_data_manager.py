@@ -23,13 +23,20 @@ class SQLiteDataManager(DataManagerInterface):
         self.db = db
         self.db.init_app(app)   # binds the database to the Flask application
 
-    def get_all_users(self):
+    def list_all_users(self):
         """
         Retrieve all user records from the database.
         """
         with self.app.app_context():
             # 'with' ensures the Flask application context is active for database operations
             return self.db.session.query(User).all()
+
+    def get_user_by_id(self, user_id):
+        """
+        Retrieve a specific user by their ID.
+        """
+        with self.app.app_context():
+            return self.db.session.query(User).filter_by(user_id=user_id).first()
 
     def get_user_movies(self, user_id):
         """

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.user_name }}'s Fav Movies - MovieWeb App</title>
+
+    <style>
+    body {
+        background-color: #2C2C2C; /* Dark grey background for a modern look */
+        font-family: 'Quicksand', sans-serif;
+        color: #EAEAEA; /* Light grey text for readability */
+        text-align: center;
+        padding: 50px;
+        margin: 0;
+    }
+
+    h1 {
+        font-family: 'Quicksand', sans-serif;
+        font-size: 3rem;
+        color: #EAEAEA; /* White text for heading */
+        margin-bottom: 30px;
+        text-transform: uppercase; /* Uppercase for a sleek, modern feel */
+        letter-spacing: 1px; /* Subtle letter spacing */
+        border-bottom: 2px solid #FF6F61; /* Elegant underline accent */
+        display: inline-block;
+        padding-bottom: 10px;
+    }
+
+    ul {
+        list-style-type: none; /* Remove bullet points */
+        padding: 0;
+        max-width: 800px;
+        margin: 20px auto; /* Center the list on the page */
+        text-align: left; /* Align text to the left for a clean look */
+    }
+
+    li {
+        background-color: #3A3A3A; /* Slightly lighter grey for list items */
+        border: 1px solid #555; /* Subtle border for definition */
+        margin: 15px 0;
+        padding: 15px;
+        transition: background-color 0.3s, transform 0.3s; /* Smooth hover effect */
+    }
+
+    li:hover {
+        transform: translateY(-5px); /* Subtle lift on hover */
+        background-color: #444; /* Slightly darker on hover for contrast */
+    }
+
+    a {
+        text-decoration: none;
+        color: #FF6F61; /* Accent color for links */
+        font-weight: 500;
+        margin-left: 10px;
+        transition: color 0.3s; /* Smooth color transition on hover */
+    }
+
+    a:hover {
+        color: #FFD700; /* Gold color on hover for elegance */
+    }
+
+    p {
+        font-size: 1.1rem;
+        color: #CCCCCC; /* Lighter grey for text to soften the contrast */
+        margin-top: 20px;
+    }
+    </style>
+</head>
+<body>
+    <h1>{{ user.user_name }}'s Favourite Movies</h1>
+
+        <!-- List of Movies -->
+        {% if movies %}
+            <ul>
+            {% for movie in movies %}
+                <li>
+                    <!-- Display movie details -->
+                    {{ movie.title }} by {{ movie.director }} release on {{ movie_release_year }} and rated: {{ movie.movie_rating }}
+
+                    <!-- Options to Edit and Delete Movie(s) -->
+                    <a href="{{ url_for('edit_movie', user_id=user.user_id, movie_id=movie.movie_id) }}">Edit</a>
+                    <a href="{{ url_for('delete_movie', user_id=user.user_id, movie_id=movie.movie_id) }}">Delete</a>
+                </li>
+            {% endfor %}
+            </ul>
+            {% else %}
+                <p>No favourite movies found for this user.</p>
+        {% endif %}
+
+        <!-- a link to add a new movie to the user's list -->
+        <a href="{{ url_for('add_movie_to_user', user_id=user.user_id) }}">Add New Movie</a>
+</body>
+</html>

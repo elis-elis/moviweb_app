@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, flash, render_template
+from flask import Flask, request, jsonify, flash, render_template, redirect
 from flask_cors import CORS
 from config import Config
 from data_models import db, User, Movie, user_movies
@@ -20,13 +20,12 @@ data_manager = SQLiteDataManager(app)
 
 @app.route('/')
 def home():
-    # return render_template('home.html')
-    return 'Welcome, but I am not impressed...🛸'
+    return render_template('home.html')
 
 
 @app.route('/users', methods=['GET'])
 def list_users():
-    users = data_manager.get_all_users()
+    users = data_manager.list_all_users()
     return render_template('users.html', users=users)
 
 
@@ -58,6 +57,26 @@ def add_movie():
     else:
         flash('All fields are required! 🌋', 'error')
         return jsonify({'error': 'All fields are required.'}), 400
+
+
+@app.route('/users/<int:user_id>', methods=['GET'])
+def display_user_movies(user_id):
+    # Fetch user from the database, this is to ensure the user exists
+    user = data_manager.get_user_by_id(user_id)
+
+    # Fetch the user's favorite movies
+    movies = data_manager.get_user_movies(user_id)
+
+    if not user:
+        flash(f'User with ID {user_id} is not found.', 'error')
+        return redirect('/users')
+
+    return render_template('user_movies.html', user=user, movies=movies)
+
+
+@app.route('/users/<int:user_id>/add_movie', methods=['POST'])
+def add_movie_to_user(user_id):
+    pass
 
 
 if __name__ == '__main__':
