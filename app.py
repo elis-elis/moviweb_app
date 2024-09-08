@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, flash, render_template, redirect
+from flask import Flask, request, jsonify, flash, render_template, redirect, url_for
 from flask_cors import CORS
 from config import Config
 from data_models import db, User, Movie, user_movies
@@ -29,17 +29,22 @@ def list_users():
     return render_template('users.html', users=users)
 
 
-@app.route('/add_user', methods=['POST'])
+@app.route('/add_user', methods=['GET', 'POST'])
 def add_user():
-    user_name = request.form.get('user_name')
+    if request.method == 'POST':
+        # Handle POST request (form submission)
+        user_name = request.form.get('user_name')
 
-    if user_name:
-        data_manager.add_user(user_name)
-        flash('User added successfully! 🦕', 'success')
-        return jsonify({'message': f"User '{user_name}' added successfully!"}), 201
+        if user_name:
+            data_manager.add_user(user_name)
+            flash('User added successfully! 🦕', 'success')
+            return redirect(url_for('add_user'))
+            # return jsonify({'message': f"User '{user_name}' added successfully!"}), 201
+        else:
+            flash('User name is required! 🦖', 'error')
     else:
-        flash('User name is required! 🦖', 'error')
-        return jsonify({'error': 'User name is required.'}), 400
+        # Handle GET request (display form)
+        return render_template('add_user.html')
 
 
 @app.route('/add_movie', methods=['POST'])
