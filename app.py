@@ -90,8 +90,30 @@ def display_user_movies(user_id):
 
 
 @app.route('/users/<int:user_id>/add_movie', methods=['POST'])
-def add_movie_to_user(user_id):
-    pass
+def add_new_movie_to_user(user_id):
+    # Extract movie data from the form
+    movie_data = {
+        'title': request.form.get('title'),
+        'director': request.form.get('director'),
+        'release_year': request.form.get('release_year'),
+        'rating': request.form.get('movie_rating')
+    }
+
+    # Check if all fields are filled
+    if movie_data['title'] and movie_data['director'] and movie_data['release_year'] and movie_data['rating']:
+        # Add the movie to the database
+        movie_id = data_manager.add_movie(movie_data)
+
+        # Associate new movie with a user
+        data_manager.add_movie_to_user(user_id, movie_id)
+
+        flash(f"Movie '{movie_data['title']}' added to user {user_id} successfully! 🎡", 'success')
+
+        # Redirect to the same page to clear the form
+        return redirect(url_for('add_new_movie_to_user', user_id=user_id))
+    else:
+        flash('All fields are required! 🌋', 'error')
+        return render_template('add_new_movie_to_user.html', movie_data={})
 
 
 if __name__ == '__main__':
