@@ -75,7 +75,7 @@ def add_movie():
 
 
 @app.route('/users/<int:user_id>', methods=['GET'])
-def display_user_movies(user_id):
+def user_movies(user_id):
     # Fetch user from the database, this is to ensure the user exists
     user = data_manager.get_user_by_id(user_id)
 
@@ -89,31 +89,57 @@ def display_user_movies(user_id):
     return render_template('user_movies.html', user=user, movies=movies)
 
 
-@app.route('/users/<int:user_id>/add_movie', methods=['POST'])
+@app.route('/users/<int:user_id>/add_movie', methods=['GET', 'POST'])
 def add_new_movie_to_user(user_id):
-    # Extract movie data from the form
-    movie_data = {
-        'title': request.form.get('title'),
-        'director': request.form.get('director'),
-        'release_year': request.form.get('release_year'),
-        'rating': request.form.get('movie_rating')
-    }
+    if request.method == 'POST':
+        # Extract movie data from the form
+        movie_data = {
+            'title': request.form.get('title'),
+            'director': request.form.get('director'),
+            'release_year': request.form.get('release_year'),
+            'rating': request.form.get('movie_rating')
+        }
 
-    # Check if all fields are filled
-    if movie_data['title'] and movie_data['director'] and movie_data['release_year'] and movie_data['rating']:
-        # Add the movie to the database
-        movie_id = data_manager.add_movie(movie_data)
+        # Check if all fields are filled
+        if movie_data['title'] and movie_data['director'] and movie_data['release_year'] and movie_data['rating']:
+            # Add the movie to the database
+            movie_id = data_manager.add_movie(movie_data)
 
-        # Associate new movie with a user
-        data_manager.add_movie_to_user(user_id, movie_id)
+            # Associate new movie with a user
+            data_manager.add_movie_to_user(user_id, movie_id)
 
-        flash(f"Movie '{movie_data['title']}' added to user {user_id} successfully! 🎡", 'success')
+            flash(f"Movie '{movie_data['title']}' added to user {user_id} successfully! 🎡", 'success')
 
-        # Redirect to the same page to clear the form
-        return redirect(url_for('add_new_movie_to_user', user_id=user_id))
-    else:
-        flash('All fields are required! 🌋', 'error')
-        return render_template('add_new_movie_to_user.html', movie_data={})
+            # Redirect to the same page to clear the form
+            return redirect(url_for('add_new_movie_to_user', user_id=user_id))
+        else:
+            flash('All fields are required! 🌋', 'error')
+
+    # Render the form if method is GET or if there was an error
+    return render_template('add_new_movie_to_user.html', movie_data={}, user_id=user_id)
+
+
+@app.route('/users/<int:user_id>/movies/<int:movie_id>/edit', methods=['GET', 'POST'])
+def update_movie(user_id, movie_id):
+    movie = data_manager.get_movie_by_id(movie_id)
+    user = data_manager.get_user_by_id(user_id)
+
+    if not movie or not user:
+        flash(f'movie or user are not found.', 'error')
+        return redirect(url_for('user_movies', user_id=user_id))
+
+    if request.method == 'POST':
+        updated_movie_data = {
+            'title': request.form.get('title'),
+            'director': request.form.get('director'),
+            'release_year': request.form.get('release_year'),
+            'rating': request.form.get('movie_rating')
+        }
+        data_manager.update_movie(movie_id, updated_movie_data)
+        flash(f"Movie '{updated_movie_data['title']} updated successfully", 'success')
+        return redirect(url_for('user_movies', user_id=user_id))
+
+    return render_template('update_movie.html', movie=movie, user=user)
 
 
 if __name__ == '__main__':

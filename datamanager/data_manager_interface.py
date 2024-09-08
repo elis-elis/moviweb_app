@@ -39,6 +39,13 @@ class DataManagerInterface(ABC):
         pass
 
     @abstractmethod
+    def get_movie_by_id(self, movie_id):
+        """
+        Retrieve a specific movie by its ID.
+        """
+        pass
+
+    @abstractmethod
     def add_movie_to_user(self, user_id, movie_id):
         """
         Associate an existing movie with a specific user.

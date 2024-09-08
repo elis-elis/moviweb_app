@@ -80,19 +80,32 @@ class SQLiteDataManager(DataManagerInterface):
             self.db.session.commit()
             return new_movie.movie_id
 
+    def get_movie_by_id(self, movie_id):
+        """
+        Retrieve a specific movie by its ID.
+        """
+        with self.app.app_context():
+            return self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
+
     def add_movie_to_user(self, user_id, movie_id):
         """
-        This method associates a movie with a specific user.
+        This method associates an existing movie with a specific user.
         """
         with self.app.app_context():
             # user_id is unique, so querying for a single record
             # .first() returns that single record (if it exists) or None
             user = self.db.session.query(User).filter_by(user_id=user_id).first()
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
+
             if user and movie:
+                # Make sure the movie is not already in the user's movie list
                 if movie not in user.movies:
-                    self.db.session.append(movie)   # This appends the movie to the user's movie list
+                    user.movies.append(movie)   # This appends the movie to the user's movie list
                     self.db.session.commit()
+                else:
+                    print("Movie already in user's list")
+            else:
+                print("User or movie not found")
 
     def remove_movie_from_user(self, user_id, movie_id):
         """
@@ -122,7 +135,7 @@ class SQLiteDataManager(DataManagerInterface):
                 self.db.session.delete(user)
                 self.db.session.commit()
 
-    def update_movie(self, movie_id, updated_data):
+    def update_movie(self, movie_id, updated_movie_data):
         """
         Updates the movie record in the database. This affects all users who have this movie
         associated with them because the movie’s details are stored centrally in the Movie table.
@@ -132,8 +145,8 @@ class SQLiteDataManager(DataManagerInterface):
             if movie:
                 # If 'title' is present in updated_data, its value is used.
                 # If 'title' is not in updated_data, the current movie.title remains unchanged.
-                movie.title = updated_data.get('title', movie.title)
-                movie.director = updated_data.get('director', movie.director)
-                movie.release_year = updated_data.get('release_year', movie.release_year)
-                movie.movie_rating = updated_data.get('rating', movie.movie_rating)
+                movie.title = updated_movie_data.get('title', movie.title)
+                movie.director = updated_movie_data.get('director', movie.director)
+                movie.release_year = updated_movie_data.get('release_year', movie.release_year)
+                movie.movie_rating = updated_movie_data.get('rating', movie.movie_rating)
                 self.db.session.commit()
