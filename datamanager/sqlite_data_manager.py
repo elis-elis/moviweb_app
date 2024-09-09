@@ -69,6 +69,7 @@ class SQLiteDataManager(DataManagerInterface):
             new_user = User(user_name=user_name)
             self.db.session.add(new_user)
             self.db.session.commit()
+            return new_user.user_id  # Return the new user's ID to confirm addition
 
     def add_movie(self, movie_data):
         """
@@ -85,7 +86,7 @@ class SQLiteDataManager(DataManagerInterface):
             )
             self.db.session.add(new_movie)
             self.db.session.commit()
-            return new_movie.movie_id
+            return new_movie.movie_id   # Return the movie ID to confirm addition
 
     def get_movie_by_id(self, movie_id):
         """
@@ -105,14 +106,16 @@ class SQLiteDataManager(DataManagerInterface):
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
 
             if user and movie:
-                # Make sure the movie is not already in the user's movie list
+                # Only append the movie if it is not already in the user's movie list
                 if movie not in user.movies:
                     user.movies.append(movie)   # This appends the movie to the user's movie list
                     self.db.session.commit()
+                    return True
                 else:
                     print("Movie already in user's list")
             else:
                 print("User or movie not found")
+            return False
 
     def remove_movie_from_user(self, user_id, movie_id):
         """
@@ -123,8 +126,10 @@ class SQLiteDataManager(DataManagerInterface):
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
             if user and movie:
                 if movie in user.movies:
-                    self.db.session.remove(movie)   # This removes the movie from the user's movie list
+                    user.movies.remove(movie)   # This removes the movie from the user's movie list
                     self.db.session.commit()
+                    return True
+                return False
 
     def delete_movie(self, movie_id):
         """This method deletes a movie from the database."""
@@ -133,6 +138,8 @@ class SQLiteDataManager(DataManagerInterface):
             if movie:
                 self.db.session.delete(movie)
                 self.db.session.commit()
+                return True
+            return False    # Return False if movie was not found
 
     def delete_user(self, user_id):
         """This method deletes a user from the database."""
@@ -141,6 +148,8 @@ class SQLiteDataManager(DataManagerInterface):
             if user:
                 self.db.session.delete(user)
                 self.db.session.commit()
+                return True   # Return True to indicate successful deletion
+            return False
 
     def update_movie(self, movie_id, updated_movie_data):
         """
@@ -157,3 +166,5 @@ class SQLiteDataManager(DataManagerInterface):
                 movie.release_year = updated_movie_data.get('release_year', movie.release_year)
                 movie.movie_rating = updated_movie_data.get('rating', movie.movie_rating)
                 self.db.session.commit()
+                return True
+            return False

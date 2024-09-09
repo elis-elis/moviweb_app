@@ -181,5 +181,13 @@ def remove_movie_from_user(user_id, movie_id):
     return redirect(url_for('remove_movie_from_user', user_id=user_id, movie_id=movie_id))
 
 
+@app.route('users/<int:user_id>/delete_user', methods=['POST'])
+def delete_user(user_id):
+    data_manager.delete_user(user_id)
+
+    flash(f"User with ID {user_id} has been deleted successfully!", 'success')
+    return redirect(url_for('delete_user', user_id=user_id))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
