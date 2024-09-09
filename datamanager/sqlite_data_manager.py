@@ -126,7 +126,9 @@ class SQLiteDataManager(DataManagerInterface):
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()
             if user and movie:
                 if movie in user.movies:
-                    user.movies.remove(movie)   # This removes the movie from the user's movie list
+                    # This removes the movie from the user's movie list,
+                    # rather than trying to delete the movie object directly from the session
+                    user.movies.remove(movie)
                     self.db.session.commit()
                     return True
                 return False
