@@ -155,8 +155,7 @@ class SQLiteDataManager(DataManagerInterface):
 
     def update_movie(self, movie_id, updated_movie_data):
         """
-        Updates the movie record in the database. This affects all users who have this movie
-        associated with them because the movie’s details are stored centrally in the Movie table.
+        Update movie details in the database that affect all users who have this movie in their favorite list.
         """
         with self.app.app_context():
             movie = self.db.session.query(Movie).filter_by(movie_id=movie_id).first()

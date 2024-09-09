@@ -103,7 +103,7 @@ def user_movies(user_id):
     return render_template('user_movies.html', user=user, movies=movies)
 
 
-@app.route('/users/<int:user_id>/add_movie', methods=['GET', 'POST'])
+@app.route('/users/<int:user_id>/add_new_movie', methods=['GET', 'POST'])
 def add_new_movie_to_user(user_id):
     # Fetch the user data
     user = data_manager.get_user_by_id(user_id)
@@ -148,52 +148,62 @@ def add_new_movie_to_user(user_id):
     return render_template('add_new_movie_to_user.html', movie_data={}, user=user, user_id=user_id)
 
 
-@app.route('/users/<user_id>/add_movie/<movie_id>', methods=['GET', 'POST'])
-def add_existing_movie_to_user(user_id, movie_id):
+@app.route('/users/<int:user_id>/add_user_movie', methods=['GET', 'POST'])
+def add_existing_movie_to_user(user_id):
     user = data_manager.get_user_by_id(user_id)
+
+    if not user:
+        flash(f"User with ID {user_id} not found.", 'error')
+        return redirect(url_for('list_users'))
+
+    # Fetch all movies to display in the dropdown
     movies = data_manager.get_all_movies()
 
     if request.method == 'POST':
-        success = data_manager.add_movie_to_user(user_id, movie_id)
-        if success:
-            flash(f"Movie with ID {movie_id} added to user {user.user_name} successfully! 🌤️", 'success')
-        else:
-            flash(f"Could not add movie with ID {movie_id} to user {user.user_name}. 🦇", 'error')
+        # Get movie_id from the form
+        movie_id = request.form.get('movie_id')
 
-        return redirect(url_for('add_existing_movie_to_user', user_id=user_id, movie_id=movie_id))
+        if movie_id:
+            success = data_manager.add_movie_to_user(user_id, movie_id)
+            if success:
+                flash(f"Movie added to user {user.user_name} successfully! 🌤️", 'success')
+            else:
+                flash(f"Could not add movie to user {user.user_name}. 🦇", 'error')
+        else:
+            flash("Please select a movie to add. 🦄", 'error')
+
+        return redirect(url_for('add_existing_movie_to_user', user_id=user_id))
 
     # Render a form to allow the user to select a movie
     return render_template('add_existing_movie_to_user.html', user=user, movies=movies)
 
 
-@app.route('/users/<int:user_id>/movies/<int:movie_id>/edit', methods=['GET', 'POST'])
-def update_movie(user_id, movie_id):
+@app.route('/movies/<int:movie_id>/edit', methods=['GET', 'POST'])
+def update_movie(movie_id):
     movie = data_manager.get_movie_by_id(movie_id)
-    user = data_manager.get_user_by_id(user_id)
 
-    if not movie or not user:
-        flash(f'movie or user are not found. 🍒', 'error')
-        return redirect(url_for('user_movies', user_id=user_id))
+    if not movie:
+        flash('Movie not found. 🪓', 'error')
+        return redirect(url_for('list_movies'))
 
     if request.method == 'POST':
-        updated_movie_data = {
+        updated_data = {
             'title': request.form.get('title'),
             'director': request.form.get('director'),
             'release_year': request.form.get('release_year'),
             'rating': request.form.get('movie_rating')
         }
-        success = data_manager.update_movie(movie_id, updated_movie_data)
+        success = data_manager.update_movie(movie_id, updated_data)
         if success:
-            flash(f"Movie '{updated_movie_data['title']} updated successfully! 🍀", 'success')
+            flash(f"Movie '{updated_data['title']}' updated successfully! 👑", 'success')
         else:
-            flash(f"Could not update movie '{updated_movie_data['title']}'. 🍄", 'error')
-
+            flash(f"Failed to update movie '{updated_data['title']}' 🥁", 'error')
         return redirect(url_for('list_movies'))
 
-    return render_template('update_movie.html', movie=movie, user=user)
+    return render_template('update_movie.html', movie=movie)
 
 
-@app.route('/users/delete_movie/<int:movie_id>', methods=['POST'])
+@app.route('/movies/delete_movie/<int:movie_id>', methods=['POST'])
 def delete_movie(movie_id):
     success = data_manager.delete_movie(movie_id)
     if success:

@@ -69,6 +69,19 @@
 <body>
     <h1>all movies in the  dataBase:</h1>
 
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
     <div>
         <!-- add movie -->
         <a href="{{ url_for('add_movie') }}">to add a movie press here</a><br><br>
@@ -86,7 +99,7 @@
                 {{ movie.title }} ({{ movie.release_year }}) - directed by {{ movie.director }} - rating: {{ movie.movie_rating }}
 
                 <!-- Edit Button -->
-                <a href="{{ url_for('update_movie', user_id=user.user_id, movie_id=movie.movie_id) }}">edit</a>
+                <a href="{{ url_for('update_movie', movie_id=movie.movie_id) }}">edit</a>
 
                 <!-- Delete Button with confirmation -->
                 <form id="delete-form-{{ movie.movie_id }}" action="{{ url_for('delete_movie', movie_id=movie.movie_id) }}" method="POST" style="display: inline;">
