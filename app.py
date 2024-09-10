@@ -3,8 +3,8 @@ from flask import Flask, request, flash, render_template, redirect, url_for
 from flask_cors import CORS
 from dotenv import load_dotenv
 import requests
-import logging
-from config import Config
+from config.logging_config import setup_logging
+from config.config import Config
 from data_models import db
 from datamanager.sqlite_data_manager import SQLiteDataManager
 
@@ -20,17 +20,10 @@ CORS(app)
 # initialize an instance of SQLiteDataManager with the Flask app
 data_manager = SQLiteDataManager(app)
 
-# to initialize or create the database schema - run 'python initialize_db.py' from the terminal or command line
+# Set up logging
+setup_logging(app)
 
-if not app.debug:
-    # File handler for logging
-    file_handler = logging.FileHandler('error.log')
-    file_handler.setLevel(logging.ERROR)
-    formatter = logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-    )
-    file_handler.setFormatter(formatter)
-    app.logger.addHandler(file_handler)
+# to initialize or create the database schema - run 'python initialize_db.py' from the terminal or command line
 
 
 def fetch_movie_details_from_omdb(title):
