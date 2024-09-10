@@ -1,30 +1,27 @@
-# MoviWeb
+# Flask Movie Management Application
 
-### **Application Structure:**
+This is a Flask-based web application that allows users to manage a list of movies and associate them with different users. Users can add new movies, edit their details, and delete them. Additionally, users can add existing movies to their personal lists or remove them as desired. This application integrates with the OMDb API to fetch movie details dynamically.
 
-1. **User Interface (UI):**
-    - Built with **Flask**, **HTML**, and **CSS**.
-    - Provides an interactive web interface for users to:
-        - Select their identity from a list of users.
-        - Manage their list of movies (add, delete, update, view).
-2. **Data Management:**
-    - A dedicated Python class will handle the data operations.
-    - Functions needed:
-        - Retrieve all users.
-        - Retrieve movies for a specific user.
-        - Update movies for a specific user.
-3. **Database File:**
-    - A file (likely `.db` or `.sqlite`) to store user and movie data.
-    - Acts as the backend data source, accessible by the Python class for CRUD (Create, Read, Update, Delete) operations.
+## Features
 
-### **Core Functionalities:**
+- **User Management:** Add, view, and delete users.
+- **Movie Management:** Add new movies by fetching details from the OMDb API, edit existing movies, and delete them.
+- **User-Movie Association:** Associate existing movies with users, and manage (add/remove) movies in a user's personal list.
+- **Error Handling:** Custom error pages for 404 (Page Not Found) and 500 (Internal Server Error).
+- **Persistent Data Storage:** Utilizes SQLite for data storage, ensuring persistence even after server restarts.
+- **Logging:** Error and information logging to facilitate debugging.
 
-1. **User Selection:**
-    - A feature allowing users to select their identity from a list of users (stored in the database).
-2. **Movie Management:**
-    - **Add a movie:** Users can enter movie details (name, director, year, rating).
-    - **Delete a movie:** Users can remove a movie from their list.
-    - **Update a movie:** Users can modify existing movie details.
-    - **List all movies:** Users can view all movies on their list.
-3. **Data Source Management:**
-    - The Python class will handle all interactions with the database (like querying, updating, etc.).
+## Project Structure
+
+- **app.py**: The main application file containing all route definitions and core logic.
+- **config/**: Configuration files for logging and application settings.
+- **data_models.py**: Data models for SQLite integration.
+- **datamanager/**: Contains the `SQLiteDataManager` class to handle data operations.
+- **templates/**: HTML templates for rendering web pages.
+- **static/**: Static files such as CSS, JavaScript, and images.
+- **initialize_db.py**: A script to initialize or reset the database schema.
+
+## Acknowledgements
+
+- [Flask](https://flask.palletsprojects.com/)
+- [OMDb API](http://www.omdbapi.com/)
