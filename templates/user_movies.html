@@ -5,67 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ user.user_name }}'s Fav Movies - MovieWeb App</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-    body {
-        background-color: #2C2C2C;
-        font-family: 'Quicksand', sans-serif;
-        color: #EAEAEA;
-        text-align: center;
-        padding: 50px;
-        margin: 0;
-    }
-
-    h1 {
-        font-family: 'Quicksand', sans-serif;
-        font-size: 3rem;
-        color: #EAEAEA;
-        margin-bottom: 30px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        border-bottom: 2px solid #FF6F61;
-        display: inline-block;
-        padding-bottom: 10px;
-    }
-
-    ul {
-        list-style-type: none; /* Remove bullet points */
-        padding: 0;
-        max-width: 800px;
-        margin: 20px auto; /* Center the list on the page */
-        text-align: left;
-    }
-
-    li {
-        background-color: #3A3A3A;
-        border: 1px solid #555;
-        margin: 15px 0;
-        padding: 15px;
-        transition: background-color 0.3s, transform 0.3s; /* Smooth hover effect */
-    }
-
-    li:hover {
-        transform: translateY(-5px); /* Subtle lift on hover */
-        background-color: #444; /* Slightly darker on hover */
-    }
-
-    a {
-        text-decoration: none;
-        color: #FF6F61; /* Accent color for links */
-        font-weight: 500;
-        margin-left: 10px;
-        transition: color 0.3s; /* Smooth color transition on hover */
-    }
-
-    a:hover {
-        color: #FFD700;
-    }
-
-    p {
-        font-size: 1.1rem;
-        color: #CCCCCC;
-        margin-top: 20px;
-    }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
     <script>
         // JavaScript function to confirm movie deletion
@@ -106,7 +46,7 @@
 
         <!-- List of Movies -->
         {% if movies %}
-            <ul>
+            <ul class="list-movies">
             {% for movie in movies %}
                 <li>
                     <!-- Display movie details -->
