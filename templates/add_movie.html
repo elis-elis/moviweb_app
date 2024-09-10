@@ -129,16 +129,7 @@
     <!-- User Form -->
     <form method="post" action="{{ url_for('add_movie') }}">
         <label for="title">enter movie title:</label>
-        <input type="text" id="title" name="title" value="{{ movie_data.title if movie_data.title else '' }}" required><br><br>
-
-        <label for="director">enter movie director:</label>
-        <input type="text" id="director" name="director" value="{{ movie_data.director if movie_data.director else '' }}" required><br><br>
-
-        <label for="release_year">enter movie's release year:</label>
-        <input type="text" id="release_year" name="release_year" value="{{ movie_data.release_year if movie_data.release_year else '' }}" required><br><br>
-
-        <label for="movie_rating">enter movie's rating:</label>
-        <input type="text" id="movie_rating" name="movie_rating" value="{{ movie_data.movie_rating if movie_data.movie_rating else '' }}" required><br><br>
+        <input type="text" id="title" name="title" value="{{ movie_data.title if movie_data.title else '' }}" required><br>
 
         <input type="submit" value="add it">
     </form>

@@ -1,9 +1,14 @@
+import os
 from flask import Flask, request, flash, render_template, redirect, url_for
 from flask_cors import CORS
+from dotenv import load_dotenv
 from config import Config
 from data_models import db
 from datamanager.sqlite_data_manager import SQLiteDataManager
 import requests
+
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -16,6 +21,43 @@ data_manager = SQLiteDataManager(app)
 
 # with app.app_context():
 #    db.create_all()
+
+
+def fetch_movie_details_from_omdb(title):
+    """
+    Fetch movie details from the OMDb API.
+    """
+    try:
+        # Construct the API URL
+        api_url = f'http://www.omdbapi.com/?apikey={API_KEY}&t={title}'
+
+        # Send the request to OMDb API
+        response = requests.get(api_url, timeout=5)
+        response.raise_for_status()  # Raises an HTTPError if the response status is 4xx, 5xx
+
+        data = response.json()
+        if data.get('Response') == 'True':  # Successful response from OMDb
+            return {
+                'title': data.get('Title'),
+                'director': data.get('Director'),
+                'release_year': data.get('Year'),
+                'rating': data.get('imdbRating')
+            }
+        else:
+            print(f"OMDb API Error: {data.get('Error')}")
+            return None
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error happened: {http_err}")
+    except requests.exceptions.ConnectionError as conn_err:
+        print(f"Connection error happened: {conn_err}")
+    except requests.exceptions.Timeout as timeout_err:
+        print(f"Timeout error happened: {timeout_err}")
+    except requests.exceptions.RequestException as req_err:
+        print(f"An error happened: {req_err}")
+
+    # Return None for any kind of failure uniformly
+    return None
 
 
 @app.route('/')
@@ -62,28 +104,25 @@ def add_user():
 @app.route('/add_movie', methods=['GET', 'POST'])
 def add_movie():
     if request.method == 'POST':
-        # Extract movie data from the form
-        movie_data = {
-            'title': request.form.get('title'),
-            'director': request.form.get('director'),
-            'release_year': request.form.get('release_year'),
-            'rating': request.form.get('movie_rating')
-        }
+        # Get the title from the form
+        title = request.form.get('title')
 
-        # Check if all fields are filled
-        if movie_data['title'] and movie_data['director'] and movie_data['release_year'] and movie_data['rating']:
-            # Attempt to add the movie to the database
-            movie_id = data_manager.add_movie(movie_data)
-            if movie_id:
-                flash('Movie added successfully! 🍳', 'success')
-            else:
-                flash('Failed to add movie. Please try again later. 🍇', 'error')
+        # Fetch movie details from OMDb API
+        movie_data = fetch_movie_details_from_omdb(title)
 
-            # Redirect to the same page to clear the form
+        if not movie_data:
+            flash(f"Could not fetch details for the movie '{title}' from OMDb. 🦈", 'error')
             return redirect(url_for('add_movie'))
 
+        # Add the movie to the database
+        movie_id = data_manager.add_movie(movie_data)
+
+        if movie_id:
+            flash(f"Movie '{movie_data['title']}' added successfully! 🎬", 'success')
         else:
-            flash('All fields are required! 🌋', 'error')
+            flash(f"Failed to add movie '{movie_data['title']}'.", 'error')
+
+        return redirect(url_for('list_movies'))
 
     return render_template('add_movie.html', movie_data={})
 
@@ -113,38 +152,30 @@ def add_new_movie_to_user(user_id):
         return redirect(url_for('list_users'))
 
     if request.method == 'POST':
-        # Extract movie data from the form
-        movie_data = {
-            'title': request.form.get('title'),
-            'director': request.form.get('director'),
-            'release_year': request.form.get('release_year'),
-            'rating': request.form.get('movie_rating')
-        }
+        title = request.form.get('title')
+        movie_data = fetch_movie_details_from_omdb(title)
 
-        # Check if all fields are filled
-        if movie_data['title'] and movie_data['director'] and movie_data['release_year'] and movie_data['rating']:
-            # Add the movie to the database
-            movie_id = data_manager.add_movie(movie_data)
-
-            if movie_id:  # Check if movie was added successfully
-                # Attempt to associate the new movie with the user
-                success = data_manager.add_movie_to_user(user_id, movie_id)
-
-                if success:
-                    flash(f"Movie '{movie_data['title']}' added to user {user_id} successfully! 🎡", 'success')
-                else:
-                    flash(f"Movie '{movie_data['title']}' could not be added to user {user_id}. 🪂", 'error')
-
-            else:
-                flash(f"Could not add the movie '{movie_data['title']}' to the database. 🦈", 'error')
-
-            # Redirect to the same page to clear the form
+        if not movie_data:
+            flash(f"Could not fetch details for the movie '{title}' from OMDb. 🦈", 'error')
             return redirect(url_for('add_new_movie_to_user', user_id=user_id))
 
-        else:
-            flash('All fields are required! 🧃', 'error')
+        # Add the movie to the database
+        movie_id = data_manager.add_movie(movie_data)
 
-    # Render the form if method is GET or if there was an error
+        if movie_id:  # Check if movie was added successfully
+            # Attempt to associate the new movie with the user
+            success = data_manager.add_movie_to_user(user_id, movie_id)
+
+            if success:
+                flash(f"Movie '{movie_data['title']}' added to user {user.user_name} successfully! 🎡", 'success')
+            else:
+                flash(f"Movie '{movie_data['title']}' could not be added to user {user.user_name}. 🪂", 'error')
+
+        else:
+            flash(f"Could not add the movie '{movie_data['title']}' to the database. 🦈", 'error')
+
+        return redirect(url_for('add_new_movie_to_user', user_id=user_id))
+
     return render_template('add_new_movie_to_user.html', movie_data={}, user=user, user_id=user_id)
 
 
@@ -187,12 +218,15 @@ def update_movie(movie_id):
         return redirect(url_for('list_movies'))
 
     if request.method == 'POST':
+        # Get updated data from the form
         updated_data = {
-            'title': request.form.get('title'),
-            'director': request.form.get('director'),
-            'release_year': request.form.get('release_year'),
-            'rating': request.form.get('movie_rating')
+            'title': request.form.get('title', movie.title),
+            'director': request.form.get('director', movie.director),
+            'release_year': request.form.get('release_year', movie.release_year),
+            'rating': request.form.get('movie_rating', movie.movie_rating)
         }
+
+        # Update the movie in the database
         success = data_manager.update_movie(movie_id, updated_data)
         if success:
             flash(f"Movie '{updated_data['title']}' updated successfully! 👑", 'success')

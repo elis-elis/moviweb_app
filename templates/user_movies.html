@@ -69,11 +69,11 @@
 
     <script>
         // JavaScript function to confirm movie deletion
-        function confirmDeletion(movieId) {
-            const confirmation = confirm("Are you sure you want to delete this movie?");
+        function confirmDeletion(userId, movieId) {
+            const confirmation = confirm("Are you sure you want to delete this movie from you favourites list?");
             if (confirmation) {
-                // If confirmed, submit the delete form
-                document.getElementById('delete-form-' + movieId).submit();
+                // If confirmed, submit the delete form with both userId and movieId
+                document.getElementById('delete-form-' + userId + '-' + movieId).submit();
             }
         }
     </script>
@@ -81,6 +81,15 @@
 </head>
 <body>
     <h1>{{ user.user_name }}'s favourite movies:</h1>
+
+    <div>
+        <!-- Links to other pages -->
+        <a href="{{ url_for('add_new_movie_to_user', user_id=user.user_id) }}">add new movie to your fav list</a><br>
+        <a href="{{ url_for('add_existing_movie_to_user', user_id=user.user_id) }}">add existing movie to your fav list</a><br>
+        <a href="{{ url_for('list_movies') }}">to movies list</a><br>
+        <a href="{{ url_for('list_users') }}">to users list</a><br>
+        <a href="{{ url_for('home') }}">go home</a>
+    </div>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -107,8 +116,10 @@
                     <a href="{{ url_for('update_movie', movie_id=movie.movie_id) }}">edit</a>
 
                     <!-- Form to Delete Movie -->
-                    <form id="delete-form-{{ movie.movie_id }}" action="{{ url_for('delete_movie', movie_id=movie.movie_id) }}" method="POST" style="display: inline;">
-                        <button type="button" onclick="confirmDeletion({{ movie.movie_id }})">delete</button>
+                    <form id="delete-form-{{ user.user_id }}-{{ movie.movie_id }}"
+                          action="{{ url_for('remove_movie_from_user', user_id=user.user_id, movie_id=movie.movie_id) }}"
+                          method="POST" style="display: inline;">
+                        <button type="button" onclick="confirmDeletion({{ user.user_id }}, {{ movie.movie_id }})">delete it</button>
                     </form>
                 </li>
             {% endfor %}
@@ -116,14 +127,6 @@
             {% else %}
                 <p>no favourite movies found for this user</p>
         {% endif %}
-
-        <div>
-            <!-- Links to other pages -->
-            <a href="{{ url_for('add_new_movie_to_user', user_id=user.user_id) }}">add new movie to your fav list</a><br>
-            <a href="{{ url_for('list_movies') }}">all movies in dataBase</a><br>
-            <a href="{{ url_for('list_users') }}">to users list</a><br>
-            <a href="{{ url_for('home') }}">go home</a>
-        </div>
 
 </body>
 </html>

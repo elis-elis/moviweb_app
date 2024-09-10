@@ -55,12 +55,12 @@
     </style>
 
     <script>
-        // JavaScript function to confirm movie deletion
-        function confirmDeletion(movieId) {
-            const confirmation = confirm("Are you sure you want to delete this movie?");
+    // JavaScript function to confirm movie deletion
+        function confirmDeletion(userId, movieId) {
+            const confirmation = confirm("Are you sure you want to delete this movie from your favourites list?");
             if (confirmation) {
-                // If confirmed, submit the delete form
-                document.getElementById('delete-form-' + movieId).submit();
+                // If confirmed, submit the delete form with both userId and movieId
+                document.getElementById('delete-form-' + userId).submit();
             }
         }
     </script>
@@ -71,8 +71,8 @@
 
     <div>
         <!-- Links to other pages -->
-        <a href="{{ url_for('add_user') }}">to add user press here</a> <br>
-        <a href="{{ url_for('list_movies') }}"> to the movies of the MoviWeb App</a>
+        <a href="{{ url_for('add_user') }}">to add new user press here</a> <br>
+        <a href="{{ url_for('list_movies') }}"> to movies list</a>
     </div>
 
     <!-- Flash Messages -->
@@ -100,8 +100,9 @@
                 <a href="{{ url_for('add_new_movie_to_user', user_id=user.user_id) }}">add new movie to your fav list</a><br>
                 <a href="{{ url_for('add_existing_movie_to_user', user_id=user.user_id) }}">add existing movie to your fav list</a><br>
 
-                <!-- Delete Button with confirmation -->
-                <form id="delete-form-{{ user.user_id }}" action="{{ url_for('delete_user', user_id=user.user_id) }}" method="POST" style="display: inline;">
+                <!-- Delete User Button with confirmation -->
+                <form id="delete-form-{{ user.user_id }}" action="{{ url_for('delete_user', user_id=user.user_id) }}"
+                      method="POST" style="display: inline;">
                     <button type="button" onclick="confirmDeletion({{ user.user_id }})">delete</button>
                 </form>
 
