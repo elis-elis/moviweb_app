@@ -23,12 +23,16 @@ data_manager = SQLiteDataManager(app)
 # Set up logging
 setup_logging(app)
 
-# to initialize or create the database schema - run 'python initialize_db.py' from the terminal or command line
+# to initialize or create the database schema - run 'python initialize_db.py' from the terminal/command line
 
 
 def fetch_movie_details_from_omdb(title):
     """
-    Fetch movie details from the OMDb API.
+    Fetch movie details from the OMDb API using the provided title.
+    Returns:
+        dict: A dictionary containing movie details (title, director, release_year, rating)
+        if successful.
+        None: If the API request fails or the movie is not found.
     """
     try:
         # Construct the API URL
@@ -65,37 +69,62 @@ def fetch_movie_details_from_omdb(title):
 
 @app.route('/')
 def home():
+    """
+    Render the home page.
+    """
     return render_template('home.html')
 
 
 @app.route('/users', methods=['GET'])
 def list_users():
+    """
+    Display the list of all users.
+    Returns:
+        Response: The rendered users page template.
+        Redirect: Redirects to the home page if an error occurs.
+    """
     try:
         users = data_manager.list_all_users()
         return render_template('users.html', users=users)
 
     except Exception as e:
         app.logger.error(f"Error fetching users from the database: {e}")
-        flash('An error occurred while fetching users. Please try again later. 🛀', 'error')
+        flash('An error occurred while fetching users. Please try again later. 🛀',
+              'error')
         return redirect(url_for('home'))
 
 
 @app.route('/movies', methods=['GET'])
 def list_movies():
+    """
+    Display the list of all movies.
+    Returns:
+        Response: The rendered movies page template.
+        Redirect: Redirects to the home page if an error occurs.
+    """
     try:
         movies = data_manager.get_all_movies()
         return render_template('movies.html', movies=movies)
 
     except Exception as e:
         app.logger.error(f"Error fetching movies from the database: {e}")
-        flash('An error occurred while fetching movies. Please try again later. 🫀', 'error')
+        flash('An error occurred while fetching movies. Please try again later. 🫀',
+              'error')
         return redirect(url_for('home'))
 
 
 @app.route('/add_user', methods=['GET', 'POST'])
 def add_user():
+    """
+    Add a new user to the database.
+    Methods:
+        GET: Render the user addition form.
+        POST: Process the form submission and add the user.
+    Returns:
+        Response: The rendered add user page template or
+        a redirect to the same page after submission.
+    """
     if request.method == 'POST':
-        # Handle POST request (form submission)
         user_name = request.form.get('user_name')
 
         # Strip whitespace and validate user input
@@ -118,6 +147,15 @@ def add_user():
 
 @app.route('/add_movie', methods=['GET', 'POST'])
 def add_movie():
+    """
+    Add a new movie to the database.
+    Methods:
+        GET: Render the movie addition form.
+        POST: Process the form submission, fetch details from OMDb, and add the movie.
+    Returns:
+        Response: The rendered add movie page template or
+        a redirect to the movie list page after submission.
+    """
     if request.method == 'POST':
         # Get the title from the form
         title = request.form.get('title')
@@ -129,7 +167,8 @@ def add_movie():
 
             if not movie_data:
                 # Use the initial input title when the API fails to fetch movie data
-                flash(f"Could not fetch details for the movie '{title}' from OMDb. 🦈", 'error')
+                flash(f"Could not fetch details for the movie '{title}' from OMDb. 🦈",
+                      'error')
                 return redirect(url_for('add_movie'))
 
             try:
@@ -138,16 +177,19 @@ def add_movie():
 
                 if movie_id:
                     # Use the processed and accurate movie title from the API response
-                    flash(f"Movie '{movie_data['title']}' added successfully! 🎬", 'success')
+                    flash(f"Movie '{movie_data['title']}' added successfully! 🎬",
+                          'success')
                 else:
                     flash(f"Failed to add movie '{movie_data['title']}'. 🪗", 'error')
 
             except Exception as e:
                 app.logger.error(f"Error adding movie: {e}")
-                flash(f"An unexpected error occurred while adding the movie '{title}'. 💣", 'error')
+                flash(f"An unexpected error occurred while adding the movie '{title}'. 💣",
+                      'error')
 
         else:
-            flash("Movie title cannot be empty or whitespace. Please enter a valid title. 🧯", 'error')
+            flash("Movie title cannot be empty or whitespace. Please enter a valid title. 🧯",
+                  'error')
 
         return redirect(url_for('list_movies'))
 
@@ -156,6 +198,14 @@ def add_movie():
 
 @app.route('/users/<int:user_id>', methods=['GET'])
 def user_movies(user_id):
+    """
+    Display the movies associated with a specific user.
+    Args:
+        user_id (int): The ID of the user.
+    Returns:
+        Response: The rendered user movies page template or
+        a redirect to the users page if the user is not found.
+    """
     # Fetch user from the database, this is to ensure the user exists
     user = data_manager.get_user_by_id(user_id)
 
@@ -171,6 +221,17 @@ def user_movies(user_id):
 
 @app.route('/users/<int:user_id>/add_new_movie', methods=['GET', 'POST'])
 def add_new_movie_to_user(user_id):
+    """
+    Add a new movie to a specific user by fetching movie details from OMDb.
+    Args:
+        user_id (int): The ID of the user.
+    Methods:
+        GET: Render the form to add a new movie.
+        POST: Process the form submission and add the movie to the user.
+    Returns:
+        Response: The rendered add new movie to user page template or
+        a redirect to the same page after submission.
+    """
     try:
         # Fetch the user data
         user = data_manager.get_user_by_id(user_id)
@@ -186,7 +247,8 @@ def add_new_movie_to_user(user_id):
                 movie_data = fetch_movie_details_from_omdb(title.strip())
 
                 if not movie_data:
-                    flash(f"Could not fetch details for the movie '{title}' from OMDb. 🚰", 'error')
+                    flash(f"Could not fetch details for the movie '{title}' from OMDb. 🚰",
+                          'error')
                     return redirect(url_for('add_new_movie_to_user', user_id=user_id))
 
                 # Add the movie to the database
@@ -197,12 +259,15 @@ def add_new_movie_to_user(user_id):
                     success = data_manager.add_movie_to_user(user_id, movie_id)
 
                     if success:
-                        flash(f"Movie '{movie_data['title']}' added to user {user.user_name} successfully! 🎡", 'success')
+                        flash(f"Movie '{movie_data['title']}' added to user {user.user_name} "
+                              f"successfully! 🎡", 'success')
                     else:
-                        flash(f"Movie '{movie_data['title']}' could not be added to user {user.user_name}. 🪂", 'error')
+                        flash(f"Movie '{movie_data['title']}' could not be added to user "
+                              f"{user.user_name}. 🪂", 'error')
 
                 else:
-                    flash(f"Could not add the movie '{movie_data['title']}' to the database. 🌵", 'error')
+                    flash(f"Could not add the movie '{movie_data['title']}' to the database. 🌵",
+                          'error')
 
                 return redirect(url_for('add_new_movie_to_user', user_id=user_id))
 
@@ -211,11 +276,23 @@ def add_new_movie_to_user(user_id):
         flash(f"An unexpected error occurred. Please try again later. 🐉", 'error')
         return redirect(url_for('list_users'))
 
-    return render_template('add_new_movie_to_user.html', movie_data={}, user=user, user_id=user_id)
+    return render_template('add_new_movie_to_user.html',
+                           movie_data={}, user=user, user_id=user_id)
 
 
 @app.route('/users/<int:user_id>/add_user_movie', methods=['GET', 'POST'])
 def add_existing_movie_to_user(user_id):
+    """
+    Add an existing movie from the database to a specific user.
+    Args:
+        user_id (int): The ID of the user.
+    Methods:
+        GET: Render the form to select an existing movie.
+        POST: Process the form submission and associate the selected movie with the user.
+    Returns:
+        Response: The rendered add existing movie to user page template
+        or a redirect to the same page after submission.
+    """
     try:
         user = data_manager.get_user_by_id(user_id)
 
@@ -233,9 +310,11 @@ def add_existing_movie_to_user(user_id):
             if movie_id:
                 success = data_manager.add_movie_to_user(user_id, movie_id)
                 if success:
-                    flash(f"Movie added to user {user.user_name} successfully! 🌤️", 'success')
+                    flash(f"Movie added to user {user.user_name} successfully! 🌤️",
+                          'success')
                 else:
-                    flash(f"Could not add movie to user {user.user_name}. 🦇", 'error')
+                    flash(f"Could not add movie to user {user.user_name}. 🦇",
+                          'error')
             else:
                 flash("Please select a movie to add. 🦄", 'error')
 
@@ -247,7 +326,8 @@ def add_existing_movie_to_user(user_id):
         return redirect(url_for('list_users'))
 
     # Render a form to allow the user to select a movie
-    return render_template('add_existing_movie_to_user.html', user=user, movies=movies)
+    return render_template('add_existing_movie_to_user.html',
+                           user=user, movies=movies)
 
 
 @app.route('/movies/<int:movie_id>/edit', methods=['GET', 'POST'])
@@ -275,15 +355,18 @@ def update_movie(movie_id):
             # Update the movie in the database
             success = data_manager.update_movie(movie_id, updated_data)
             if success:
-                flash(f"Movie '{updated_data['title']}' updated successfully! 👑", 'success')
+                flash(f"Movie '{updated_data['title']}' updated successfully! 👑",
+                      'success')
             else:
-                flash(f"Failed to update movie '{updated_data['title']}' 🥁", 'error')
+                flash(f"Failed to update movie '{updated_data['title']}' 🥁",
+                      'error')
 
             return redirect(url_for('list_movies'))
 
     except Exception as e:
         app.logger.error(f"Error updating movie with ID {movie_id}: {e}")
-        flash("An unexpected error occurred while updating the movie. Please try again later. 🥨", 'error')
+        flash("An unexpected error occurred while updating the movie. "
+              "Please try again later. 🥨", 'error')
         return redirect(url_for('list_movies'))
 
     return render_template('update_movie.html', movie=movie)
@@ -291,16 +374,26 @@ def update_movie(movie_id):
 
 @app.route('/movies/<int:movie_id>/delete_movie', methods=['POST'])
 def delete_movie(movie_id):
+    """
+    Delete a movie from the database.
+    Args:
+        movie_id (int): The ID of the movie to be deleted.
+    Returns:
+        Response: Redirects to the list of movies page after attempting to delete the movie.
+                  Displays a success or error message based on the result of the deletion.
+    """
     try:
         success = data_manager.delete_movie(movie_id)
         if success:
-            flash(f"Movie with ID {movie_id} has been deleted successfully! 🪐", 'success')
+            flash(f"Movie with ID {movie_id} has been deleted successfully! 🪐",
+                  'success')
         else:
             flash(f"Movie with ID {movie_id} could not be deleted. ☔", 'error')
 
     except Exception as e:
         app.logger.error(f"Error deleting movie with ID {movie_id}: {e}")
-        flash('An error occurred while deleting the movie. Please try again later. 🌽', 'error')
+        flash('An error occurred while deleting the movie. Please try again later. 🌽',
+              'error')
 
     # Redirect to the list of movies after deletion
     return redirect(url_for('list_movies'))
@@ -308,16 +401,27 @@ def delete_movie(movie_id):
 
 @app.route('/users/<int:user_id>/remove_movie/<int:movie_id>', methods=['POST'])
 def remove_movie_from_user(user_id, movie_id):
+    """
+    Remove a movie from a specific user's collection.
+    Args:
+        user_id (int): The ID of the user.
+        movie_id (int): The ID of the movie to be removed.
+    Returns:
+        Response: Redirect to the user's movie list page with a flash message indicating
+        success or failure.
+    """
     try:
         success = data_manager.remove_movie_from_user(user_id, movie_id)
         if success:
-            flash(f"Movie with ID {movie_id} has been deleted from user {user_id} successfully! 🦐", 'success')
+            flash(f"Movie with ID {movie_id} has been deleted from user {user_id} "
+                  f"successfully! 🦐", 'success')
         else:
             flash(f"Could not delete movie from user {user_id}. 🐌", 'error')
 
     except Exception as e:
         app.logger.error(f"Error removing movie with ID {movie_id} from user {user_id}: {e}")
-        flash('An error occurred while removing the movie from the user. Please try again later. 🍸', 'error')
+        flash('An error occurred while removing the movie from the user. '
+              'Please try again later. 🍸', 'error')
 
     # Stay on the user's movie list page, where the action was triggered
     return redirect(url_for('user_movies', user_id=user_id))
@@ -325,16 +429,25 @@ def remove_movie_from_user(user_id, movie_id):
 
 @app.route('/users/<int:user_id>/delete_user', methods=['POST'])
 def delete_user(user_id):
+    """
+    Delete a user from the database.
+    Args:
+        user_id (int): The ID of the user to be deleted.
+    Returns:
+        Response: Redirect to the list of users with a flash message indicating success or failure.
+    """
     try:
         success = data_manager.delete_user(user_id)
         if success:
-            flash(f"User with ID {user_id} has been deleted successfully! 🦩", 'success')
+            flash(f"User with ID {user_id} has been deleted successfully! 🦩",
+                  'success')
         else:
             flash(f"User with ID {user_id} could not be deleted. 🦤", 'error')
 
     except Exception as e:
         app.logger.error(f"Error deleting user with ID {user_id}: {e}")
-        flash('An error occurred while deleting the user. Please try again later. 🌭', 'error')
+        flash('An error occurred while deleting the user. Please try again later. 🌭',
+              'error')
 
     # Redirect to the list of users after deletion
     return redirect(url_for('list_users'))
@@ -342,11 +455,28 @@ def delete_user(user_id):
 
 @app.errorhandler(404)
 def page_not_found(e):
+    """
+    Handle 404 (Page Not Found) errors.
+    Args:
+        e (HTTPException): The exception object for the 404 error.
+    Returns:
+        Response: Render the 404 error page template with the status code 404.
+    """
+    app.logger.warning(f"404 error occurred: {e}")
     return render_template('404.html'), 404
 
 
 @app.errorhandler(500)
 def internal_server_error(e):
+    """
+    Handle 500 (Internal Server Error) errors.
+    Args:
+        e (HTTPException): The exception object for the 500 error.
+    Returns:
+        Response: Render the 500 error page template with the status code 500.
+    """
+    # Log the error for debugging purposes
+    app.logger.error(f"Server error: {e}, route: {request.url}")
     return render_template('500.html'), 500
 
 
