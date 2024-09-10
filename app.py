@@ -2,10 +2,12 @@ import os
 from flask import Flask, request, flash, render_template, redirect, url_for
 from flask_cors import CORS
 from dotenv import load_dotenv
+import requests
+import logging
 from config import Config
 from data_models import db
 from datamanager.sqlite_data_manager import SQLiteDataManager
-import requests
+
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
@@ -18,9 +20,17 @@ CORS(app)
 # initialize an instance of SQLiteDataManager with the Flask app
 data_manager = SQLiteDataManager(app)
 
+# to initialize or create the database schema - run 'python initialize_db.py' from the terminal or command line
 
-# with app.app_context():
-#    db.create_all()
+if not app.debug:
+    # File handler for logging
+    file_handler = logging.FileHandler('error.log')
+    file_handler.setLevel(logging.ERROR)
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    )
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
 
 
 def fetch_movie_details_from_omdb(title):
@@ -44,7 +54,7 @@ def fetch_movie_details_from_omdb(title):
                 'rating': data.get('imdbRating')
             }
         else:
-            print(f"OMDb API Error: {data.get('Error')}")
+            app.logger.error(f"OMDb API Error: {data.get('Error')}")
             return None
 
     except requests.exceptions.HTTPError as http_err:
@@ -111,16 +121,23 @@ def add_movie():
         movie_data = fetch_movie_details_from_omdb(title)
 
         if not movie_data:
+            # Use the initial input title when the API fails to fetch movie data
             flash(f"Could not fetch details for the movie '{title}' from OMDb. 🦈", 'error')
             return redirect(url_for('add_movie'))
 
-        # Add the movie to the database
-        movie_id = data_manager.add_movie(movie_data)
+        try:
+            # Add the movie to the database
+            movie_id = data_manager.add_movie(movie_data)
 
-        if movie_id:
-            flash(f"Movie '{movie_data['title']}' added successfully! 🎬", 'success')
-        else:
-            flash(f"Failed to add movie '{movie_data['title']}'.", 'error')
+            if movie_id:
+                # Use the processed and accurate movie title from the API response
+                flash(f"Movie '{movie_data['title']}' added successfully! 🎬", 'success')
+            else:
+                flash(f"Failed to add movie '{movie_data['title']}'.", 'error')
+
+        except Exception as e:
+            app.logger.error(f"Error adding movie: {e}")
+            flash(f"An unexpected error occurred while adding the movie '{title}'.", 'error')
 
         return redirect(url_for('list_movies'))
 
