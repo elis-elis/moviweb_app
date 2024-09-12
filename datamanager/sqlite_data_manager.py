@@ -21,7 +21,6 @@ class SQLiteDataManager(DataManagerInterface):
         """
         self.app = app
         self.db = db
-        self.db.init_app(app)   # binds the database to the Flask application
 
     def list_all_users(self):
         """
