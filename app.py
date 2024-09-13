@@ -1,6 +1,5 @@
 import os
 from flask import Flask, request, flash, render_template, redirect, url_for
-from flask_cors import CORS
 from dotenv import load_dotenv
 import requests
 from config.logging_config import setup_logging
@@ -14,16 +13,12 @@ API_KEY = os.getenv('API_KEY')
 
 app = Flask(__name__)
 app.config.from_object(Config)
-db.init_app(app)
-CORS(app)
 
 # initialize an instance of SQLiteDataManager with the Flask app
 data_manager = SQLiteDataManager(app)
 
 # Set up logging
 setup_logging(app)
-
-# to initialize or create the database schema - run 'python initialize_db.py' from the terminal/command line
 
 
 def fetch_movie_details_from_omdb(title):
