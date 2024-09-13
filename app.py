@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 import requests
 from config.logging_config import setup_logging
 from config.config import Config
-from data_models import db
 from datamanager.sqlite_data_manager import SQLiteDataManager
 
 
