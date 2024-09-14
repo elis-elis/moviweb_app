@@ -44,9 +44,8 @@ def fetch_movie_details_from_omdb(title):
                 'release_year': data.get('Year'),
                 'rating': data.get('imdbRating')
             }
-        else:
-            app.logger.error(f"OMDb API Error: {data.get('Error')}")
-            return None
+        app.logger.error(f"OMDb API Error: {data.get('Error')}")
+        return None
 
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error happened: {http_err}")
@@ -266,8 +265,9 @@ def add_new_movie_to_user(user_id):
                 return redirect(url_for('add_new_movie_to_user', user_id=user_id))
 
     except Exception as e:
-        app.logger.error(f"An unexpected error occurred while adding a new movie to user {user_id}: {e}")
-        flash(f"An unexpected error occurred. Please try again later. 🐉", 'error')
+        app.logger.error(f"An unexpected error occurred while adding a new movie to user {user_id}: "
+                         f"{e}")
+        flash("An unexpected error occurred. Please try again later. 🐉", 'error')
         return redirect(url_for('list_users'))
 
     return render_template('add_new_movie_to_user.html',
